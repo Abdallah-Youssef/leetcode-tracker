@@ -15,6 +15,19 @@ function sendKeyDownMessage() {
     });
 }
 
+function sendSubmitMessage(){
+    chrome.runtime.sendMessage({
+        type: "submit", 
+    });
+}
+
+function sendSubmissionResultMessage(result){
+    chrome.runtime.sendMessage({
+        type: "submissionResult",
+        options: {result} 
+    });
+}
+
 function getButton() {
     const startButton = document.createElement("button")
     startButton.innerHTML = "Start Solving"
@@ -41,31 +54,30 @@ document.getElementById("app").appendChild(getButton())
 
 
 
-// Wait for the code input area to appear,
+// Wait for the code input area to arrive,
 // and attach a keydown event listener to send a message
-// to background.js at every keydown               
-var observer = new MutationObserver(function (mutations) {
-    mutations.forEach(function (mutation) {
-        if (!mutation.addedNodes) return
+// to background.js at every keydown 
+document.arrive(".react-codemirror2", function() {
+    this.addEventListener('keydown', (e) => sendKeyDownMessage());
+    document.unbindArrive(".react-codemirror2");
+});
 
-        
-        for (let i = 0; i < mutation.addedNodes.length; i++) {
-            if (mutation.addedNodes[i].classList && 
-                mutation.addedNodes[i].classList.contains("CodeMirror") &&
-                mutation.addedNodes[i].classList.contains("cm-s-textmate") 
-                ){
+// Wait for the submit button to arrive
+// and add its event listener
+document.arrive('[data-cy="submit-code-btn"]', function() {
+    this.addEventListener('click', (e) => {
+        sendSubmitMessage()
 
-                mutation.addedNodes[i].addEventListener('keydown', (e) => sendKeyDownMessage());
-                return
-            }
-        }
-    })
-})
-observer.observe(document.body, {
-    childList: true
-    , subtree: true
-    , attributes: false
-    , characterData: false
-})
+        // Wait for arriving result
+        // Check result of sumbissions
+        document.arrive('.ant-table-row', function() {
+            const result = this.children[1].textContent
+            sendSubmissionResultMessage(result)
+            document.unbindArrive('.ant-table-row');
+        });
+    });
+
+    
+});
 
 

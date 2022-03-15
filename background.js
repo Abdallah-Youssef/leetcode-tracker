@@ -18,7 +18,7 @@ async function startedSolvingHandler(){
     problemName = url.split("/")[4]
     addLogEntry(`startedSolving ${Date.now()}`)
 }
-async function startedTypingHandler(){
+function startedTypingHandler(){
     console.log("Started typing")
     addLogEntry(`startedTyping ${Date.now()}`)
     isTyping = true;
@@ -42,7 +42,15 @@ function keyDownHandler(){
     }, waitTime);
 }
 
+function submitHandler(){
+    // Clear timer
+    clearTimeout(timer)
+    addLogEntry(`submit ${Date.now()}`)
+}
 
+function submissionResultHandler(result){
+    addLogEntry(`${result} ${Date.now()}`)
+}
 
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
@@ -54,8 +62,15 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     }
     
     if (request.type == "keydown"){
-        console.log("keydown")
         keyDownHandler()
+    }
+
+    if (request.type == "submit"){
+        submitHandler()
+    }
+
+    if (request.type == "submissionResult"){
+        submissionResultHandler(request.options.result)
     }
   
 });
