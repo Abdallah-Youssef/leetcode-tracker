@@ -1,8 +1,20 @@
+function startTimer() {
+    chrome.runtime.sendMessage({type: "start-notification", options: { 
+        type: "basic", 
+        iconUrl: "icons/icon128.png",
+        title: "Timer Started",
+        message: "Test"
+    }});
+}
+
 function getButton() {
     const startButton = document.createElement("button")
     startButton.innerHTML = "Start Solving"
     startButton.id = "start-button"
-    startButton.onclick = () => startButton.remove()
+    startButton.onclick = () => {
+        startButton.remove()
+        startTimer()
+    }
     return startButton
 }
 
